@@ -1,6 +1,24 @@
 var A = [], b = [],n=0, x=[], y=[];
 let expression = "";
 
+let colors = {
+  "lnlReg" : Desmos.Colors.BLUE,
+  "sqrdReg" : Desmos.Colors.RED,
+  "plnReg" : Desmos.Colors.GREEN,
+  "expReg" : Desmos.Colors.PURPLE,
+  "potReg" : Desmos.Colors.ORANGE,
+  "logReg" : Desmos.Colors.BLACK
+}
+
+let labelTexts = {
+  "lblLnl" : "Regresión Lineal",
+  "lblSqrd" : "Regresión cuadrática",
+  "lblPln" : "Regresión polinomial",
+  "lblExp" : "Regresión exponecial",
+  "lblPot" : "Regresión potencia",
+  "lblLog" : "Regresión logarítmica"
+}
+
 var elt = null, calculator = null; //document.getElementById('calculator');
 initCalc()
 function initCalc(){
@@ -27,34 +45,39 @@ window.addEventListener('resize', function(){
 let butt = document.getElementById("nBut").addEventListener("click",function(){
   clicked();
 }, false);
-
+let current = "";
 let divRad = document.getElementById("radsDiv").addEventListener("change", radiosChecked, false);
 
 function radiosChecked(){
+  Object.keys(labelTexts).forEach(element => {
+    let lbl = document.getElementById(element);
+    lbl.innerHTML = labelTexts[element];
+  });
   let radios = document.getElementsByName("regsOpts");
   radios.forEach(element => {
     if (element.checked==true){
-      if (element.id=="lnlReg"){
+      current = element.id;
+      if (element.id=="lnlReg" && element.checked==true ){
         initMatrices(2);
         regressionGeneralized(2,x,y,false, false, false);
       }
-      if (element.id == "sqrdReg"){
+      if (element.id == "sqrdReg" && element.checked==true){
         initMatrices(3);
         regressionGeneralized(3,x,y,false, false, false);
       }
-      if (element.id == "plnReg"){
+      if (element.id == "plnReg" && element.checked==true){
         initMatrices(n);
         regressionGeneralized(n,x,y,false, false, false);
       }
-      if (element.id=="expReg"){
+      if (element.id=="expReg" && element.checked==true){
         initMatrices(2);
         generalizedExponential(2,x,y);
       }
-      if (element.id=="potReg"){
+      if (element.id=="potReg"  && element.checked==true){
         initMatrices(2);
         generalizedPotential(2,x,y);
       }
-      if (element.id=="logReg"){
+      if (element.id=="logReg" && element.checked==true){
         initMatrices(2);
         generalizedLogarithmic(2,x,y);
       }
@@ -64,10 +87,10 @@ function radiosChecked(){
 
 function setMargins(x,y){
   calculator.setMathBounds({
-    left: Math.min(...x)-5,
-    right: Math.max(...x)+5,
-    bottom: Math.min(...y)+5,
-    top: Math.max(...y)-5
+    left: Math.min(...x)-Math.min(...x)*5,
+    right: Math.max(...x)+Math.min(...x)*5,
+    bottom: Math.min(...y)-Math.min(...y)*5,
+    top: Math.max(...y)+Math.min(...y)*5
   });
 }
 
@@ -87,6 +110,7 @@ function clickAddPoint(id){
   console.log(node);
   x.push(parseFloat(node.childNodes[1].value));
   y.push(parseFloat(node.childNodes[3].value));
+  setMargins(x,y);
   plot(null,x,y )
   console.log(x,y);
   divNe.removeChild(node);
@@ -189,13 +213,15 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
     if (isExp == true){
       let a = Math.exp(s[0]);
       let b = s[1];
-      console.log(a,b)
+      console.log(a,b, s)
       let ae = "(("+b.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*x))";
       //console.log( math.simplify("3^"+ae).toString());
       eq = a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*e^(".concat(ae).concat(")");
       //console.log(math.simplify(eq).toString() )
       //setMargins(x,y)
-      calculator.setExpression({ id: 'exp', latex: a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*e^{"+ae+"}" });
+      calculator.setExpression({ id: 'exp', latex: a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*e^{"+ae+"}", color: colors[current] });
+      let labelUsed = document.getElementById("lblExp");
+      labelUsed.innerHTML += " y="+a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*e^"+ae+"";
       return;
     }
     else if (isPot==true){
@@ -204,8 +230,9 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
       let bS = b.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString();
       let aS = a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString();
       //setMargins(x,y)
-      calculator.setExpression({ id: 'pot', latex: aS+"*x^{"+bS+"}" });
-      console.log(a,b)
+      calculator.setExpression({ id: 'pot', latex: aS+"*x^{"+bS+"}",color: colors[current] });
+      let labelUsed = document.getElementById("lblPot");
+      labelUsed.innerHTML += " y="+aS+"*x^("+bS+")";
       return;
     }
     else if (isLn==true){
@@ -215,7 +242,9 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
       let aS = a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString();
       console.log(s[0],s[1]);
       //setMargins(x,y)
-      calculator.setExpression({ id: 'logr', latex: aS+"+"+bS+"*\ln{x}" });
+      calculator.setExpression({ id: 'logr', latex: aS+"+"+bS+"*(\ln{x})", color: colors[current] });
+      let labelUsed = document.getElementById("lblLog");
+      labelUsed.innerHTML += " y="+aS+"+"+bS+"*ln(x)";
       return;
     }
     else{
@@ -244,16 +273,23 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
     //console.log(math.simplify(eq).toString())
     //plot(newX,newY,x,y);
     //console.log(newX,newY,s)
+    let labelUsed = null;
     expression = math.simplify(eq).toString();
     setMargins(x,y)
-    if (s.length==2){
-      plot(expression,x,y, "lnr");
+    if (current == "lnlReg"){
+      labelUsed = document.getElementById("lblLnl");
+      labelUsed.innerHTML += " y="+expression;
+      plot(expression,x,y, "lnr", colors["lnlReg"]);
     }
-    else if (s.length == 3){
-      plot(expression,x,y, "quad");
+    if (current == "sqrdReg"){
+      labelUsed = document.getElementById("lblSqrd");
+      labelUsed.innerHTML += " y="+expression;
+      plot(expression,x,y, "quad", colors["sqrdReg"]);
     }
-    else{
-      plot(expression,x,y, "pol");
+    if (current == "plnReg"){
+      labelUsed = document.getElementById("lblPln");
+      labelUsed.innerHTML += " y="+expression;
+      plot(expression,x,y, "pol", colors["plnReg"]);
     }
     
 }
@@ -264,8 +300,7 @@ function generalizedExponential(n,x,y){
     yLn.push(Math.log1p(y_i-1));
   });
   regressionGeneralized(n,x,yLn, true, false, false);
-  //console.log(res);
-  plot(null,x,y, null);
+  plot(null,x,y, null, Desmos.Colors.PURPLE);
 }
 
 function generalizedPotential(n,x,y){
@@ -273,23 +308,27 @@ function generalizedPotential(n,x,y){
   y.forEach(y_i =>{yLn.push(Math.log1p(y_i-1));});
   x.forEach(x_i =>{xLn.push(Math.log1p(x_i-1));});
   regressionGeneralized(n,xLn,yLn, false, true, false);
-  plot(null,x,y, null);
+  plot(null,x,y, null, colors["potReg"] );
 }
 
 function generalizedLogarithmic(n,x,y){
   let xLn= [];
   x.forEach(x_i => {xLn.push(Math.log1p(x_i-1));});
   regressionGeneralized(n, xLn,y, false, false, true);
-  plot(null,x,y, null);
+  plot(null,x,y, null, colors["logReg"]);
 }
 
-function plot(expr=null,x,y, id){
+function plot(expr=null,x,y, id, color){
   calculator.updateSettings({ expressionsCollapsed: true });
   //calculator.expressionsCollapsed = true;
-  console.log(expr==null)
   if (expr!=null){
     console.log(expr);
-    calculator.setExpression({ id: id, latex: expr });
+    console.log(current);
+    calculator.setExpression({ id: id,
+       latex: expr,
+       color: colors[current]
+    });
+
   }
   for (let index = 0; index < x.length; index++) {
     calculator.setExpression({ id: index.toString(), latex: '('+x[index].toString()+','+y[index].toString()+')' });
