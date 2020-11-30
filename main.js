@@ -87,10 +87,10 @@ function radiosChecked(){
 
 function setMargins(x,y){
   calculator.setMathBounds({
-    left: Math.min(...x)-Math.min(...x)*5,
-    right: Math.max(...x)+Math.min(...x)*5,
-    bottom: Math.min(...y)-Math.min(...y)*5,
-    top: Math.max(...y)+Math.min(...y)*5
+    left: Math.min(...x)-2,
+    right: Math.max(...x)+2,
+    bottom: Math.min(...y)-2,
+    top: Math.max(...y)+2
   });
 }
 
