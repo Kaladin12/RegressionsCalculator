@@ -348,10 +348,10 @@ function rSquared(s, x, y){
       let e = 0;
       let i = 0;
       y.forEach((y_i) =>{
-        e +=  ( f(s[0], s[1],x[i]) - y_i );
+        e +=  (Math.pow(( f(s[0], s[1],x[i]) - y_i),2));
         i+=1;
       });
-      e = Math.sqrt((Math.pow(e,2))/y.length);
+      e = Math.sqrt(e/y.length);
       let labelUsed = document.getElementById("lblLnl");
       console.log(labelUsed.innerHTML);
       labelUsed.innerHTML += " error="+e;
