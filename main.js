@@ -38,9 +38,9 @@ function initCalc(){
     item.checked = false;
   });
 }
-window.addEventListener('resize', function(){
+/*window.addEventListener('resize', function(){
   elt.style.height = (0.9*window.innerHeight).toString()+"px"; 
-});
+});*/
 
 let butt = document.getElementById("nBut").addEventListener("click",function(){
   clicked();
