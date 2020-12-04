@@ -40,7 +40,7 @@ function initCalc(){
 }
 /*window.addEventListener('resize', function(){
   elt.style.height = (0.9*window.innerHeight).toString()+"px"; 
-});*/
+}); */
 
 let butt = document.getElementById("nBut").addEventListener("click",function(){
   clicked();
@@ -348,10 +348,10 @@ function rSquared(s, x, y){
       let e = 0;
       let i = 0;
       y.forEach((y_i) =>{
-        e +=  (Math.pow(( f(s[0], s[1],x[i]) - y_i),2));
+        e +=  ( f(s[0], s[1],x[i]) - y_i );
         i+=1;
       });
-      e = Math.sqrt(e/y.length);
+      e = Math.sqrt((Math.pow(e,2))/y.length);
       let labelUsed = document.getElementById("lblLnl");
       console.log(labelUsed.innerHTML);
       labelUsed.innerHTML += " error="+e;
