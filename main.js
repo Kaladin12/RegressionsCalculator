@@ -20,7 +20,9 @@ let labelTexts = {
 }
 
 var elt = null, calculator = null; //document.getElementById('calculator');
+let current = "";
 initCalc()
+
 function initCalc(){
   elt = document.getElementById('calculator');
   //elt.style.visibility = 'hidden';
@@ -35,17 +37,15 @@ function initCalc(){
   radios.forEach(item => {
     item.checked = false;
   });
-
 }
 window.addEventListener('resize', function(){
-  //elt.style.width = document.body.clientWidth.toString()+"px";
   elt.style.height = (0.9*window.innerHeight).toString()+"px"; 
 });
 
 let butt = document.getElementById("nBut").addEventListener("click",function(){
   clicked();
 }, false);
-let current = "";
+
 let divRad = document.getElementById("radsDiv").addEventListener("change", radiosChecked, false);
 
 function radiosChecked(){
@@ -116,8 +116,6 @@ function clickAddPoint(id){
   divNe.removeChild(node);
   console.log(divNe.childElementCount);
   if (divNe.childElementCount==1){
-    //divNe.style.visibility = 'hidden';
-    //divNe.removeChild(divBase);
     elt.style.visibility = 'visible';
   }
 }
@@ -138,14 +136,7 @@ function initPoints(n){
       };
       divNe.appendChild(newNode);
   }
-  //for (let index = 0; index < n; index++) {
-  //  let divX = document.createElement("div"), divY = document.createElement("div");
-    //divX.value = "x";
-    //divY.value = "y";
-  //  divNe.appendChild(divX); divNe.appendChild(divY);
-  //}
 }
-
 
 function initMatrices(n){
   A=[];
@@ -222,7 +213,7 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
       calculator.setExpression({ id: 'exp', latex: a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*e^{"+ae+"}", color: colors[current] });
       let labelUsed = document.getElementById("lblExp");
       labelUsed.innerHTML += " y="+a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*e^"+ae+"";
-      return;
+      return s;
     }
     else if (isPot==true){
       let a = Math.exp(s[0]);
@@ -233,7 +224,7 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
       calculator.setExpression({ id: 'pot', latex: aS+"*x^{"+bS+"}",color: colors[current] });
       let labelUsed = document.getElementById("lblPot");
       labelUsed.innerHTML += " y="+aS+"*x^("+bS+")";
-      return;
+      return s;
     }
     else if (isLn==true){
       let a = s[0];
@@ -245,14 +236,11 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
       calculator.setExpression({ id: 'logr', latex: aS+"+"+bS+"*(\ln{x})", color: colors[current] });
       let labelUsed = document.getElementById("lblLog");
       labelUsed.innerHTML += " y="+aS+"+"+bS+"*ln(x)";
-      return;
+      return s;
     }
     else{
       for (let index = 0; index < s.length; index++) {
         let i=0;
-        //let nfg = s[index].toString();
-        //console.log( math.rationalize(parseFloat(s[index].toLocaleString('fullwide', { useGrouping: false }))) );
-        //console.log(s[index], s[index].toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString());
         if (s[index]<0){
             eq += parseFloat(s[index].toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 })).toString()+"x^"+parseFloat(index).toString();// + toString(x) + "^" + toString(index);
         }
@@ -270,9 +258,7 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
         });   
       } 
     }
-    //console.log(math.simplify(eq).toString())
-    //plot(newX,newY,x,y);
-    //console.log(newX,newY,s)
+    console.log("s:",s);
     let labelUsed = null;
     expression = math.simplify(eq).toString();
     setMargins(x,y)
@@ -291,7 +277,7 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
       labelUsed.innerHTML += " y="+expression;
       plot(expression,x,y, "pol", colors["plnReg"]);
     }
-    
+    rSquared(s,x,y);
 }
 
 function generalizedExponential(n,x,y){
@@ -299,7 +285,19 @@ function generalizedExponential(n,x,y){
   y.forEach(y_i =>{
     yLn.push(Math.log1p(y_i-1));
   });
-  regressionGeneralized(n,x,yLn, true, false, false);
+  let s = regressionGeneralized(n,x,yLn, true, false, false);
+  let f = function (a, b, x) {
+    return a*Math.exp(x*b);
+  }
+  let e = 0;
+  let i = 0;
+  y.forEach((y_i) =>{
+    e +=  f(Math.exp(s[0]), s[1], x[i]) - y_i ;
+    i+=1;
+  });
+  e = Math.sqrt((Math.pow(e,2))/x.length);
+  let labelUsed = document.getElementById("lblExp");
+  labelUsed.innerHTML += " error="+e;
   plot(null,x,y, null, Desmos.Colors.PURPLE);
 }
 
@@ -307,15 +305,71 @@ function generalizedPotential(n,x,y){
   let yLn = [], xLn = [];
   y.forEach(y_i =>{yLn.push(Math.log1p(y_i-1));});
   x.forEach(x_i =>{xLn.push(Math.log1p(x_i-1));});
-  regressionGeneralized(n,xLn,yLn, false, true, false);
+  let s = regressionGeneralized(n,xLn,yLn, false, true, false);
+  let f = function (a, b, x) {
+    return a*Math.pow(x,b);
+  }
+  let e = 0;
+  let i = 0;
+  y.forEach((y_i) =>{
+    e +=  f( Math.exp(s[0]), s[1],x[i]) - y_i ;
+    i+=1;
+  });
+  e = Math.sqrt((Math.pow(e,2))/x.length);
+  let labelUsed = document.getElementById("lblPot");
+  labelUsed.innerHTML += " error="+e;
   plot(null,x,y, null, colors["potReg"] );
 }
 
 function generalizedLogarithmic(n,x,y){
   let xLn= [];
   x.forEach(x_i => {xLn.push(Math.log1p(x_i-1));});
-  regressionGeneralized(n, xLn,y, false, false, true);
+  let s = regressionGeneralized(n, xLn,y, false, false, true);
+  let f = function (a, b, x) {
+    return a + b*Math.log1p(x-1);
+  }
+  let e = 0;
+  let i = 0;
+  y.forEach((y_i) =>{
+    e +=   f(s[0], s[1],x[i]) - y_i ;
+    i+=1;
+  });
+  e = Math.sqrt((Math.pow(e,2))/x.length);
+  let labelUsed = document.getElementById("lblLog");
+  labelUsed.innerHTML += " error="+e;
   plot(null,x,y, null, colors["logReg"]);
+}
+
+function rSquared(s, x, y){
+  if (current=="lnlReg"){
+      let f = function (a, b, x) {
+        return a+b*x;
+      }
+      let e = 0;
+      let i = 0;
+      y.forEach((y_i) =>{
+        e +=  ( f(s[0], s[1],x[i]) - y_i );
+        i+=1;
+      });
+      e = Math.sqrt((Math.pow(e,2))/y.length);
+      let labelUsed = document.getElementById("lblLnl");
+      console.log(labelUsed.innerHTML);
+      labelUsed.innerHTML += " error="+e;
+  }
+  else if (current=="sqrdReg"){
+    let f = function (a, b, c, x) {
+      return a*Math.pow(x,2) + b*x + c;
+    }
+    let e = 0, i=0;
+    y.forEach((y_i) =>{
+      e +=  ( f(s[2], s[1], s[0],x[i]) - y_i );
+      i+=1;
+    });
+    e = Math.sqrt((Math.pow(e,2))/y.length);
+    let labelUsed = document.getElementById("lblSqrd");
+    labelUsed.innerHTML += " error="+e;
+    console.log(labelUsed.innerHTML)
+  }
 }
 
 function plot(expr=null,x,y, id, color){
@@ -339,19 +393,3 @@ function plot(expr=null,x,y, id, color){
   //calculator.setExpression({id:'graph3', latex:'(2,3)'});    
 }
     
-
-
-//let x = [1,2,4,8,16,32,64];
-//let y = [2,4,7,11,16,19,21];
-//let anw = generalizedLogarithmic(n, x, y);
-//let x = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
-//let y = [0.3,0.7,1.2,3.5,5.3,7.6,11,16,20,24.1,33.8,44,55.3,69.2,86,109.5,128.3,140.8,158.7,182.1,207.9,233,250,262.7,276.6,300.5]
-//let x = [1,2,3,4];//[0, 0.108, 0.215, 0.322, 0.430, 0.537, 0.645, 0.752, 0.860];
-//let y = [1,1,2,6];//[1.037, 1.402, 1.638, 1.774, 1.803, 1.715, 1.509, 1.214, 0.831];
-//let name = window.prompt("Enter your name: ");
-//console.log(name);
-//n=4
-//regressionGeneralized(n,x,y)
-//plot(x,y)
-
-
