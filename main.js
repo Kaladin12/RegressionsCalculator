@@ -38,9 +38,6 @@ function initCalc(){
     item.checked = false;
   });
 }
-/*window.addEventListener('resize', function(){
-  elt.style.height = (0.9*window.innerHeight).toString()+"px"; 
-}); */
 
 let butt = document.getElementById("nBut").addEventListener("click",function(){
   clicked();
@@ -242,14 +239,15 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
       for (let index = 0; index < s.length; index++) {
         let i=0;
         if (s[index]<0){
-            eq += parseFloat(s[index].toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 })).toString()+"x^"+parseFloat(index).toString();// + toString(x) + "^" + toString(index);
+          eq += parseFloat(s[index]).toFixed(7).toString()+"x^"+parseFloat(index).toString();// + toString(x) + "^" + toString(index);
         }
         else{
             if (index==0){
-                eq +=parseFloat(s[index].toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 })).toString();
+                eq +=parseFloat(s[index]).toFixed(7).toString();
             }
             else{
-                eq +="+"+parseFloat(s[index].toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8  })).toString()+"x^"+parseFloat(index).toString();
+                eq +="+"+parseFloat(s[index]).toFixed(7).toString()+"x^"+parseFloat(index).toString();
+                //.toLocaleString('fullwide', { useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: 15  }))
             }
         }
         newX.forEach(x_i=>{
@@ -258,9 +256,9 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
         });   
       } 
     }
-    console.log("s:",s);
+    console.log(eq)
     let labelUsed = null;
-    expression = math.simplify(eq).toString();
+    expression = eq//math.simplify(eq,{},{exactFractions: false, fractionsLimit:1000000000000000}).toString();
     setMargins(x,y)
     if (current == "lnlReg"){
       labelUsed = document.getElementById("lblLnl");
@@ -348,10 +346,10 @@ function rSquared(s, x, y){
       let e = 0;
       let i = 0;
       y.forEach((y_i) =>{
-        e +=  ( f(s[0], s[1],x[i]) - y_i );
+        e +=  Math.pow((f(s[0], s[1],x[i]) - y_i ),2);
         i+=1;
       });
-      e = Math.sqrt((Math.pow(e,2))/y.length);
+      e = Math.sqrt(e/y.length);
       let labelUsed = document.getElementById("lblLnl");
       console.log(labelUsed.innerHTML);
       labelUsed.innerHTML += " error="+e;
@@ -362,10 +360,10 @@ function rSquared(s, x, y){
     }
     let e = 0, i=0;
     y.forEach((y_i) =>{
-      e +=  ( f(s[2], s[1], s[0],x[i]) - y_i );
-      i+=1;
-    });
-    e = Math.sqrt((Math.pow(e,2))/y.length);
+     e +=  Math.pow(( f(s[2], s[1], s[0],x[i]) - y_i ),2);
+        i+=1;
+      });
+      e = Math.sqrt(e/y.length);
     let labelUsed = document.getElementById("lblSqrd");
     labelUsed.innerHTML += " error="+e;
     console.log(labelUsed.innerHTML)
@@ -387,9 +385,4 @@ function plot(expr=null,x,y, id, color){
   for (let index = 0; index < x.length; index++) {
     calculator.setExpression({ id: index.toString(), latex: '('+x[index].toString()+','+y[index].toString()+')' });
   }
-  ///calculator.updateSettings.expressionsCollapsed = true;
-  
-  //calculator.setExpression({id:'graph2', latex:'y=e^x'});
-  //calculator.setExpression({id:'graph3', latex:'(2,3)'});    
 }
-    
