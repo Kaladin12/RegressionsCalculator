@@ -15,6 +15,9 @@
             overflow:scroll;
             overflow-x:hidden;
         }
+        body{
+          overflow-x: hidden;
+        }
     </style>
 </head>
 <body >
@@ -26,7 +29,7 @@
     
     <div class="container">
         <div id="enter">
-            <div class="d-flex justify-content-center">
+            <div class="d-flex  flex-row justify-content-center">
                 <input id="nText" type="text" class="form-control" placeholder="Numero de puntos" aria-label="Numero de puntos" aria-describedby="basic-addon2">
                 <div class="input-group-append">
                     <button  id="nBut" class="btn btn-primary" type="button">Listo</button>
@@ -34,7 +37,7 @@
             </div>
         </div>
     </div>
-    <div >
+
         <div class="row justify-content-center">
             <div class="col-xs-4 col-sm-4 col-md-4; shadow-lg p-3 mb-5 bg-grey rounded;"  style=" background-color: grey;border-radius: 25px;" id="rightDiv">
                 <p class="d-flex justify-content-center" style="color: mediumaquamarine;">  Aquí se introduciran los puntos a los cuales se les hará regresión  </p>
@@ -48,6 +51,7 @@
                             </div>
                         </div>
                     </div>
+                    <br>
                     <p class="d-flex justify-content-center" style="color: mediumaquamarine;">  Escoge la regresión a utilizar  </p>
                     <div class="container" style="background-color: aliceblue;border-radius: 25px;" id="radsDiv">
                         <div class="form-check">
@@ -60,12 +64,6 @@
                             <input class="form-check-input" type="checkbox" name="regsOpts" id="sqrdReg" value="reg2">
                             <label  id="lblSqrd" class="form-check-label" for="sqrdReg" style="color:red;">
                               Regresión cuadrática
-                            </label>
-                          </div>
-                          <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="regsOpts" id="plnReg" value="reg3">
-                            <label id="lblPln" class="form-check-label" for="plnReg" style="color: green;" >
-                              Regresión polinomial
                             </label>
                           </div>
                           <div class="form-check">
@@ -82,7 +80,7 @@
                           </div>
                           <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="regsOpts" id="logReg" value="reg6" checked>
-                            <label  id="lblLog"  class="form-check-label" for="logReg" style="color: black;" >
+                            <label  id="lblLog"  class="form-check-label" for="logReg" style="color: green;" >
                               Regresión logarítmica
                             </label>
                           </div>
@@ -94,7 +92,7 @@
                 
             </div>
         </div>
-    </div>
+
     
     <script type="module"  src="./main.js" ></script>
 </body>

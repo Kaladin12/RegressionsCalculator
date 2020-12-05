@@ -7,13 +7,12 @@ let colors = {
   "plnReg" : Desmos.Colors.GREEN,
   "expReg" : Desmos.Colors.PURPLE,
   "potReg" : Desmos.Colors.ORANGE,
-  "logReg" : Desmos.Colors.BLACK
+  "logReg" : Desmos.Colors.GREEN
 }
 
 let labelTexts = {
   "lblLnl" : "Regresión Lineal",
   "lblSqrd" : "Regresión cuadrática",
-  "lblPln" : "Regresión polinomial",
   "lblExp" : "Regresión exponecial",
   "lblPot" : "Regresión potencia",
   "lblLog" : "Regresión logarítmica"
@@ -25,13 +24,12 @@ initCalc()
 
 function initCalc(){
   elt = document.getElementById('calculator');
-  //elt.style.visibility = 'hidden';
   let divBase = document.getElementById("baseInput");
   divBase.style.visibility = 'hidden';
   document.getElementById("nText").value = "";
   calculator = Desmos.GraphingCalculator(elt);
   calculator.updateSettings({ expressionsCollapsed: true });
-  elt.style.width = (0.8*window.innerWidth/2).toString()+"px";
+  //elt.style.width = (0.8*window.innerWidth/2).toString()+"px";
   elt.style.height = (0.9*window.innerHeight).toString()+"px"; 
   let radios = document.getElementsByName("regsOpts");
   radios.forEach(item => {
@@ -96,7 +94,6 @@ function clicked(){
   x=[];
   y=[];
   n = parseInt(document.getElementById("nText").value);
-  //initMatrices(n);
   initPoints(n);
 }
 
@@ -120,7 +117,6 @@ function clickAddPoint(id){
 function initPoints(n){
   let divNe = document.getElementById("mainOpts");
   let divBase = document.getElementById("baseInput");
-  //console.log(divBase.childNodes[1].value);
   for (let index = 0; index < n; index++) {
       let newNode = divBase.cloneNode(true);
       newNode.style.visibility = 'visible';
@@ -151,7 +147,6 @@ function initMatrices(n){
 }
 
 function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
-    let nPoints = x.length;
     function Afunc(last, i){
         let row = 0;
         for (let exp = 0; exp < Math.pow(n,2) ; exp++) {
@@ -169,14 +164,6 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
             A[row][parseInt(exp%n)] = aux;
         }
     }
-    function makeArr(startValue, stopValue, cardinality) {
-        var arr = [];
-        var step = (stopValue - startValue) / (cardinality - 1);
-        for (var i = 0; i < cardinality; i++) {
-        arr.push(startValue + (step * i));
-        }
-        return arr;
-    }
     function Bfunc(){
         for (let exp = 0; exp < n; exp++) {
             let sum = 0;
@@ -190,34 +177,24 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
     Bfunc();
     console.log(A,b)
     let s = math.multiply(math.inv(A),b);
-    //console.log(Math.min.apply(Math,x),Math.max.apply(Math,x))
     let range0 = Math.max.apply(Math,x) - Math.min.apply(Math,x);
-    let newX = makeArr(Math.min.apply(Math,x)-1, Math.max.apply(Math,x)+1,25);
-    let newY = [];
-    for (let index = 0; index < newX.length; index++) {
-        newY.push(0);
-    }
     let eq = "";
     if (isExp == true){
       let a = Math.exp(s[0]);
       let b = s[1];
       console.log(a,b, s)
-      let ae = "(("+b.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*x))";
-      //console.log( math.simplify("3^"+ae).toString());
-      eq = a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*e^(".concat(ae).concat(")");
-      //console.log(math.simplify(eq).toString() )
-      //setMargins(x,y)
-      calculator.setExpression({ id: 'exp', latex: a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*e^{"+ae+"}", color: colors[current] });
+      let ae = "(("+parseFloat(b).toFixed(7).toString()+"*x))";
+      eq = parseFloat(a).toFixed(7).toString()+"*e^(".concat(ae).concat(")");
+      calculator.setExpression({ id: 'exp', latex: parseFloat(a).toFixed(7).toString()+"*e^{"+ae+"}", color: colors[current] });
       let labelUsed = document.getElementById("lblExp");
-      labelUsed.innerHTML += " y="+a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString()+"*e^"+ae+"";
+      labelUsed.innerHTML += " y="+parseFloat(a).toFixed(7).toString()+"*e^"+ae+"";
       return s;
     }
     else if (isPot==true){
       let a = Math.exp(s[0]);
       let b = s[1];
-      let bS = b.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString();
-      let aS = a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString();
-      //setMargins(x,y)
+      let bS = parseFloat(b).toFixed(7).toString();
+      let aS = parseFloat(a).toFixed(7).toString();
       calculator.setExpression({ id: 'pot', latex: aS+"*x^{"+bS+"}",color: colors[current] });
       let labelUsed = document.getElementById("lblPot");
       labelUsed.innerHTML += " y="+aS+"*x^("+bS+")";
@@ -226,10 +203,9 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
     else if (isLn==true){
       let a = s[0];
       let b = s[1];
-      let bS = b.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString();
-      let aS = a.toLocaleString('fullwide', { useGrouping: false, minimumFractionDigits: 0, maximumFractionDigits: 8 }).toString();
+      let bS = parseFloat(b).toFixed(7).toString();
+      let aS = parseFloat(a).toFixed(7).toString();
       console.log(s[0],s[1]);
-      //setMargins(x,y)
       calculator.setExpression({ id: 'logr', latex: aS+"+"+bS+"*(\ln{x})", color: colors[current] });
       let labelUsed = document.getElementById("lblLog");
       labelUsed.innerHTML += " y="+aS+"+"+bS+"*ln(x)";
@@ -250,13 +226,8 @@ function regressionGeneralized(n,x,y, isExp=false, isPot=false, isLn=false){
                 //.toLocaleString('fullwide', { useGrouping: true, minimumFractionDigits: 0, maximumFractionDigits: 15  }))
             }
         }
-        newX.forEach(x_i=>{
-            newY[i] += Math.pow(x_i,index)*s[index];
-            i+=1
-        });   
       } 
     }
-    console.log(eq)
     let labelUsed = null;
     expression = eq//math.simplify(eq,{},{exactFractions: false, fractionsLimit:1000000000000000}).toString();
     setMargins(x,y)
@@ -372,7 +343,6 @@ function rSquared(s, x, y){
 
 function plot(expr=null,x,y, id, color){
   calculator.updateSettings({ expressionsCollapsed: true });
-  //calculator.expressionsCollapsed = true;
   if (expr!=null){
     console.log(expr);
     console.log(current);
@@ -380,7 +350,6 @@ function plot(expr=null,x,y, id, color){
        latex: expr,
        color: colors[current]
     });
-
   }
   for (let index = 0; index < x.length; index++) {
     calculator.setExpression({ id: index.toString(), latex: '('+x[index].toString()+','+y[index].toString()+')' });
